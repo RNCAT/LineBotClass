@@ -9,3 +9,7 @@ parserOptions:
   ecmaVersion: 13
 rules:
   no-console: off
+  import/order: off
+  import/no-unresolved: off
+  import/no-self-import: off
+  import/no-extraneous-dependencies: off
