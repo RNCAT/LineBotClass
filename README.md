@@ -15,17 +15,19 @@ $ yarn
 
 ### Configuration
 
-``` js
-// .env file
+``` python
+### .env file
 
-//default 3000
+# default 3000
+# Node
 NODE_PORT = 5000
 
-//LINE
+# LINE
+LINE_API_URL = "https://api.line.me/v2/bot/message/"
 CHANNEL_ACCESS_TOKEN = "xxx"
 CHANNEL_SECRET = "xxx"
 
-//TMD Weather Forecast API
+# TMD Weather Forecast API
 WEATHER_ACCESS_TOKEN = "xxx" 
 ```
 
