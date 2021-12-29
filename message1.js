@@ -69,7 +69,9 @@ app.get('/', (req, res) => res.sendStatus(200));
 app.post('/', (req, res) => res.sendStatus(200));
 
 app.post('/webhook', async (req, res) => {
-  if (!req.body.events.length) return;
+  if (!req.body.events.length) return res.sendStatus(200);
+
+  console.log(req.body.events[0].source.userId);
 
   const messageList = {
     text: { type: 'text', text: 'หลักสูตรวิทยาการคอมพิวเตอร์\nยินดีต้อนรับ' },
@@ -81,10 +83,41 @@ app.post('/webhook', async (req, res) => {
       longitude: 100.61377561534297,
     },
     weather: { type: 'text', text: await getWeather() },
+    menu: {
+      type: 'imagemap',
+      baseUrl: 'https://i.imgur.com/aQIJsXo.jpg?itis=bug',
+      altText: 'This is an imagemap',
+      baseSize: {
+        width: 1040,
+        height: 351,
+      },
+      actions: [
+        {
+          type: 'message',
+          area: {
+            x: 343,
+            y: 5,
+            width: 697,
+            height: 346,
+          },
+          text: 'Register',
+        },
+        {
+          type: 'message',
+          area: {
+            x: 3,
+            y: 3,
+            width: 340,
+            height: 348,
+          },
+          text: 'Information',
+        },
+      ],
+    },
     default: { type: 'text', text: 'อัลปาก้าไม่เข้าใจ ???' },
   };
 
-  const { replyToken, type, message } = req.body.events[0];
+  const { replyToken, type, message, source } = req.body.events[0];
 
   if (type === 'message') {
     let msg;
@@ -99,6 +132,26 @@ app.post('/webhook', async (req, res) => {
       case 'พยากรณ์อากาศ':
         msg = messageList.weather;
         break;
+      case 'เมนู':
+        msg = messageList.menu;
+        break;
+      case 'โปรไฟล์':
+        // eslint-disable-next-line no-case-declarations
+        const profile = await client.getProfile(source.userId);
+
+        msg = [
+          { type: 'text', text: profile.displayName },
+          {
+            type: 'image',
+            originalContentUrl: profile.pictureUrl,
+            previewImageUrl: profile.pictureUrl,
+          },
+          {
+            type: 'text',
+            text: profile.statusMessage ? profile.statusMessage : 'ไม่มีสถานะ',
+          },
+        ];
+        break;
       default:
         msg = messageList.default;
     }
@@ -106,7 +159,15 @@ app.post('/webhook', async (req, res) => {
     await client.replyMessage(replyToken, msg);
   }
 
-  res.sendStatus(200);
+  return res.sendStatus(200);
+});
+
+app.post('/push', async (req, res) => {
+  const { userId, text } = req.body;
+
+  await client.pushMessage(userId, { type: 'text', text: `${text} from SDK` });
+
+  return res.sendStatus(200);
 });
 
 app.listen(PORT, () => console.log(`server is running on http://localhost:${PORT}`));
