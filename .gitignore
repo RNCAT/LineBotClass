@@ -14,7 +14,6 @@ logs/
 
 # Miscellaneous
 .tmp/
-.vscode/
 .idea/
 docs/docs.json
 typings/index.js
